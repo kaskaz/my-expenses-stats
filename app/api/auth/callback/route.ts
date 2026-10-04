@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { appUrl, cookieOptions, OAUTH_COOKIE, SESSION_COOKIE, seal, unseal } from "@/lib/session";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 export async function GET(request: Request) {
   const base = appUrl();
   const fail = (reason: string) => {

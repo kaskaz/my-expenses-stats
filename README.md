@@ -12,7 +12,7 @@ A Next.js application for the **2026** spreadsheet in **EXTRATOS-BCN**. It reads
 
 ## Setup
 
-Requires Node.js **22.18+** (or Node.js 24), npm, and a Google account with access to the source spreadsheet.
+Requires Node.js **22.18+ within the 22.x release line**, npm, and a Google account with access to the source spreadsheet. Node.js 22.x is also configured for Vercel.
 
 1. Clone this repository and install:
 
@@ -85,8 +85,39 @@ npm run build
 
 Parser tests run directly with Node's TypeScript stripping and synthetic fixtures. GitHub Actions also installs dependencies, lints, typechecks, and builds without real Google credentials. After OAuth setup, verify sign-in, all three views, refresh, expiry/sign-out, and an account without spreadsheet access. Runtime financial data is fetched only after sign-in.
 
-## Deployment
+## Deploy to Vercel
 
-Deploy as a standard Node.js Next.js app (for example on Vercel or another Next.js host). Configure the environment variables above and the matching production OAuth redirect URI. Run `npm run build` and `npm start` for a self-hosted deployment. Static export is unsupported because OAuth and Sheets reads require server routes.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fkaskaz%2Fmy-expenses-stats&env=GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,SESSION_SECRET,APP_URL,GOOGLE_SPREADSHEET_ID&envDescription=Configure%20Google%20OAuth%20and%20the%20private%202026%20spreadsheet.%20APP_URL%20must%20be%20your%20production%20HTTPS%20origin.&envLink=https%3A%2F%2Fgithub.com%2Fkaskaz%2Fmy-expenses-stats%23deploy-to-vercel)
+
+To deploy this existing repository directly, use [Vercel → New Project](https://vercel.com/new), import **kaskaz/my-expenses-stats**, and select **master** as the production branch. Keep the root directory at the repository root. `vercel.json` supplies the Next.js framework, install, and build commands; `package.json` selects Node.js 22.x. Leave the output directory at the Next.js default. No separate backend, database, or static export is needed.
+
+1. Import the project and deploy. Without credentials the app builds and opens in synthetic demo mode, so you can obtain its stable production domain first.
+2. Under **Project Settings → Environment Variables**, add the following for **Production**:
+
+   | Variable | Value |
+   | --- | --- |
+   | `GOOGLE_CLIENT_ID` | Your Google OAuth Web application client ID |
+   | `GOOGLE_CLIENT_SECRET` | Its client secret; mark it sensitive |
+   | `SESSION_SECRET` | At least 32 random characters; generate with `openssl rand -base64 48`; mark it sensitive |
+   | `APP_URL` | The exact stable HTTPS origin, e.g. `https://my-expenses-stats.vercel.app`, with no path |
+   | `GOOGLE_SPREADSHEET_ID` | The native **2026** Sheet ID from **EXTRATOS-BCN** |
+   | `ALLOWED_GOOGLE_EMAIL` | Optional: the Google account allowed to sign in |
+   | `EXPENSE_CURRENCY` | Optional: ISO currency code; defaults to `CVE`; confirm the workbook's currency |
+
+   Use server environment variables with these exact names. Do not add a `NEXT_PUBLIC_` prefix. The one-click button above asks for the five required variables up front; verify `APP_URL` matches the domain Vercel assigns and update it if necessary.
+
+3. In Google Cloud Console, enable the **Google Sheets API** and configure the OAuth consent screen and test user as described in [Setup](#setup). Add this authorised redirect URI to the Web application OAuth client, replacing the domain with the exact `APP_URL`:
+
+   ```text
+   https://my-expenses-stats.vercel.app/api/auth/callback
+   ```
+
+4. **Redeploy** after changing environment variables. Open the production domain, connect Google, and verify the three dashboard views and refresh. Sign in using an account with spreadsheet access.
+
+OAuth redirects and sign-out use `APP_URL`, so always use that canonical domain. When adding a custom domain, update both `APP_URL` and the Google redirect URI, then redeploy. For preview deployments, keep demo mode or configure a separate exact preview origin and matching Google callback URI; production credentials alone do not configure preview sign-in. Google does not accept wildcard callback URLs.
+
+The callback runs as a Node.js server function with a 60-second limit, and the dashboard API has a 30-second limit to accommodate its bounded Google requests. Financial responses use `private, no-store` and are not cached by the Vercel CDN. The build does not fetch the private workbook or require real Google credentials.
+
+For self-hosting, run `npm run build` and `npm start` with the same runtime variables. Static export is unsupported because OAuth and Sheets reads require server routes.
 
 After your first successful install, commit the generated `package-lock.json` and switch CI to `npm ci` for reproducible dependency installs. This repository initially uses `npm install` because the authoring environment could not access the package registry.

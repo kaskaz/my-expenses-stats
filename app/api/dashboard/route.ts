@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { readDashboard, SheetError } from "@/lib/sheets";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 30;
 export async function GET() {
   const headers = { "Cache-Control": "private, no-store, max-age=0", Vary: "Cookie" };
   const session = await getSession();
