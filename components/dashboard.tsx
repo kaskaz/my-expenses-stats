@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { Area, AreaChart, Bar, BarChart, Brush, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ArrowDownLeft, ArrowUpRight, BarChart3, ChevronRight, CircleHelp, Download, ExternalLink, Layers3, LayoutDashboard, LoaderCircle, LogOut, Menu, RefreshCw, Search, Sheet, TrendingUp, Wallet, X } from "lucide-react";
 import { demoData, type DashboardPayload } from "@/lib/demo";
@@ -85,7 +86,7 @@ export default function Dashboard({ authenticated, userName, configured }: { aut
 
   return <div className="app-shell">
     <aside className={`sidebar ${menu ? "open" : ""}`}>
-      <a className="brand" href="/" aria-label="My Expenses home"><span className="brand-mark"><BarChart3 size={23} /></span><span>my expenses<span className="brand-dot">.</span></span></a>
+      <Link className="brand" href="/" aria-label="My Expenses home"><span className="brand-mark"><BarChart3 size={23} /></span><span>my expenses<span className="brand-dot">.</span></span></Link>
       <button className="mobile-close icon-button" onClick={() => setMenu(false)} aria-label="Close navigation"><X size={20} /></button>
       <div className="workspace"><span className="workspace-icon"><Wallet size={18} /></span><div><strong>Personal finances</strong><small>EXTRATOS-BCN · 2026</small></div><ChevronRight size={15} /></div>
       <p className="nav-caption">YOUR WORKSPACE</p>
